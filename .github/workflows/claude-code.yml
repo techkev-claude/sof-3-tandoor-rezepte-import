@@ -1,7 +1,7 @@
 name: Claude Code Implementation
 on:
   repository_dispatch:
-    types: [claude-code-implement]
+    types: [claude-code-implement, claude-code-update]
 jobs:
   implement:
     runs-on: ubuntu-latest
@@ -17,9 +17,8 @@ jobs:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           prompt: ${{ github.event.client_payload.spec }}
-          claude_args: "--max-turns 30 --dangerously-skip-permissions"
+          claude_args: "--max-turns 80 --dangerously-skip-permissions"
           show_full_output: true
-
       - name: Commit und Push
         run: |
           git config user.name "claude[bot]"
@@ -34,7 +33,6 @@ jobs:
             --base main --head "$BRANCH"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: n8n benachrichtigen
         if: always()
         run: |
