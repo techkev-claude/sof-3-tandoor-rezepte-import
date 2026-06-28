@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <h2 class="mb-4">Einstellungen</h2>
+
+    {% if success %}
+    <div class="alert alert-success">Einstellungen gespeichert.</div>
+    {% endif %}
+
+    <form method="post" action="/settings" x-data="{showKey: false, showTandoorKey: false}">
+      <div class="card mb-4">
+        <div class="card-header"><strong>Tandoor</strong></div>
+        <div class="card-body">
+          <div class="mb-3">
+            <label class="form-label">Tandoor URL</label>
+            <input type="url" name="tandoor_url" class="form-control"
+                   value="{{ settings.tandoor_url }}"
+                   placeholder="https://rezepte.example.de">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">API Key</label>
+            <div class="input-group">
+              <input :type="showTandoorKey ? 'text' : 'password'" name="tandoor_api_key"
+                     class="form-control" value="{{ settings.tandoor_api_key }}">
+              <button type="button" class="btn btn-outline-secondary"
+                      @click="showTandoorKey = !showTandoorKey"
+                      x-text="showTandoorKey ? 'Verbergen' : 'Zeigen'"></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-4" x-data="{provider: '{{ settings.ai_provider }}'}">
+        <div class="card-header"><strong>KI-Provider</strong></div>
+        <div class="card-body">
+          <div class="mb-3">
+            <label class="form-label">Provider</label>
+            <select name="ai_provider" class="form-select" x-model="provider">
+              {% for p in ["anthropic", "openai", "google gemini", "mistral", "groq", "ollama"] %}
+              <option value="{{ p }}" {% if settings.ai_provider == p %}selected{% endif %}>
+                {{ p | title }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mb-3" x-show="provider !== 'ollama'">
+            <label class="form-label">API Key</label>
+            <div class="input-group">
+              <input :type="showKey ? 'text' : 'password'" name="ai_api_key"
+                     class="form-control" value="{{ settings.ai_api_key }}">
+              <button type="button" class="btn btn-outline-secondary"
+                      @click="showKey = !showKey"
+                      x-text="showKey ? 'Verbergen' : 'Zeigen'"></button>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Modell</label>
+            <input type="text" name="ai_model" class="form-control"
+                   value="{{ settings.ai_model }}"
+                   placeholder="z.B. gpt-4o, claude-sonnet-4-6, gemini-1.5-pro">
+          </div>
+          <div class="mb-3" x-show="provider === 'ollama'">
+            <label class="form-label">Ollama Base URL</label>
+            <input type="text" name="ollama_base_url" class="form-control"
+                   value="{{ settings.ollama_base_url }}">
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary mb-5">Speichern</button>
+    </form>
+
+    <div class="card mb-4">
+      <div class="card-header"><strong>Passwort ändern</strong></div>
+      <div class="card-body">
+        {% if pw_success %}
+        <div class="alert alert-success">Passwort erfolgreich geändert.</div>
+        {% endif %}
+        {% if pw_error %}
+        <div class="alert alert-danger">{{ pw_error }}</div>
+        {% endif %}
+        <form method="post" action="/change-password">
+          <div class="mb-3">
+            <label class="form-label">Aktuelles Passwort</label>
+            <input type="password" name="current_password" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Neues Passwort</label>
+            <input type="password" name="new_password" class="form-control" required
+                   minlength="8" placeholder="Mindestens 8 Zeichen">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Neues Passwort bestätigen</label>
+            <input type="password" name="confirm_password" class="form-control" required>
+          </div>
+          <button type="submit" class="btn btn-warning">Passwort ändern</button>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

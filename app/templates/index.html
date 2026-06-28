@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-9">
+    <h2 class="mb-4">Rezept importieren</h2>
+    <div class="card">
+      <div class="card-body">
+        <label class="form-label fw-bold">Rezepttext einfügen</label>
+        <textarea id="recipe-text" name="recipe_text" class="form-control mb-3"
+                  rows="12"
+                  placeholder="Rezepttext hier einfügen (Freitext, HTML, strukturiert...)"></textarea>
+        <button class="btn btn-primary btn-lg"
+                hx-post="/analyze"
+                hx-include="#recipe-text"
+                hx-target="#result-area"
+                hx-swap="innerHTML"
+                hx-indicator="#spinner">
+          Analysieren
+        </button>
+        <span id="spinner" class="htmx-indicator ms-3 text-muted">
+          <span class="spinner-border spinner-border-sm"></span> KI analysiert Rezept...
+        </span>
+      </div>
+    </div>
+    <div id="result-area" class="mt-4"></div>
+  </div>
+</div>
+{% endblock %}
