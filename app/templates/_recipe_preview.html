@@ -1,0 +1,68 @@
+<div id="preview-area">
+  <div class="card mb-3">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <strong>Vorschau: {{ recipe.name }}</strong>
+      <button class="btn btn-outline-secondary btn-sm"
+              onclick="document.getElementById('result-area').innerHTML='';
+                       document.getElementById('recipe-text').value=''">
+        Nochmal analysieren
+      </button>
+    </div>
+    <div class="card-body">
+      {% if recipe.description %}
+      <p class="text-muted">{{ recipe.description }}</p>
+      {% endif %}
+
+      <div class="row mb-3">
+        <div class="col-sm-3"><strong>Portionen:</strong> {{ recipe.servings }} {{ recipe.servings_text }}</div>
+        <div class="col-sm-3"><strong>Aktiv:</strong> {{ recipe.working_time }} Min.</div>
+        <div class="col-sm-3"><strong>Passiv:</strong> {{ recipe.waiting_time }} Min.</div>
+      </div>
+
+      {% for step in recipe.steps %}
+        {% if step.name %}
+        <h5 class="mt-3">{{ step.name }}</h5>
+        {% endif %}
+
+        {% if step.ingredients %}
+        <table class="table table-sm table-bordered mb-2">
+          <thead class="table-light">
+            <tr><th>Menge</th><th>Einheit</th><th>Zutat</th><th>Notiz</th></tr>
+          </thead>
+          <tbody>
+            {% for ing in step.ingredients %}
+            <tr>
+              <td>{% if not ing.no_amount %}{{ ing.amount }}{% endif %}</td>
+              <td>{% if ing.unit %}{{ ing.unit.name }}{% endif %}</td>
+              <td>{{ ing.food.name }}</td>
+              <td>{{ ing.note or "" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% endif %}
+
+        <p style="white-space: pre-line;">{{ step.instruction }}</p>
+      {% endfor %}
+    </div>
+
+    <div class="card-footer" id="transfer-area">
+      <form hx-post="/transfer"
+            hx-target="#transfer-area"
+            hx-swap="innerHTML"
+            hx-indicator="#transfer-spinner">
+        <div class="mb-3">
+          <label class="form-label fw-bold">JSON (editierbar vor dem Import)</label>
+          <textarea name="recipe_json" class="form-control font-monospace" rows="20"
+                    style="font-size: 0.85em;">{{ raw_json }}</textarea>
+        </div>
+        <button type="submit" class="btn btn-success btn-lg">
+          Zu Tandoor übertragen
+        </button>
+        <span id="transfer-spinner" class="htmx-indicator ms-3 text-muted">
+          <span class="spinner-border spinner-border-sm"></span> Übertrage zu Tandoor...
+        </span>
+      </form>
+    </div>
+  </div>
+</div>

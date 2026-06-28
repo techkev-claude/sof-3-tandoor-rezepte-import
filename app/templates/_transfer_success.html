@@ -1,0 +1,11 @@
+<div class="alert alert-success">
+  <h5>Rezept erfolgreich importiert!</h5>
+  <a href="{{ recipe_url }}" target="_blank" class="btn btn-success mt-2">
+    Rezept in Tandoor öffnen
+  </a>
+  <button class="btn btn-outline-secondary mt-2 ms-2"
+          onclick="document.getElementById('result-area').innerHTML='';
+                   document.getElementById('recipe-text').value=''">
+    Weiteres Rezept importieren
+  </button>
+</div>
