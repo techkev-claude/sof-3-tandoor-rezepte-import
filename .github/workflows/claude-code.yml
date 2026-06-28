@@ -1,0 +1,48 @@
+name: Claude Code Implementation
+on:
+  repository_dispatch:
+    types: [claude-code-implement]
+jobs:
+  implement:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          prompt: ${{ github.event.client_payload.spec }}
+          claude_args: "--max-turns 30 --dangerously-skip-permissions"
+          show_full_output: true
+
+      - name: Commit und Push
+        run: |
+          git config user.name "claude[bot]"
+          git config user.email "claude[bot]@users.noreply.github.com"
+          BRANCH="claude/sof-${{ github.event.client_payload.issueKey }}-$(date +%s)"
+          git checkout -b "$BRANCH"
+          git add -A
+          git diff --staged --quiet || git commit -m "feat: implement ${{ github.event.client_payload.issueKey }}"
+          git push origin "$BRANCH"
+          gh pr create --title "feat: ${{ github.event.client_payload.issueKey }}" \
+            --body "Automatisch generiert von Claude Code" \
+            --base main --head "$BRANCH"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: n8n benachrichtigen
+        if: always()
+        run: |
+          PR_URL=$(gh pr list --repo ${{ github.repository }} \
+            --state open --json url --jq '.[0].url' 2>/dev/null \
+            || echo "kein PR")
+          curl -X POST "${{ secrets.N8N_WEBHOOK_URL }}" \
+            -H "Content-Type: application/json" \
+            -d "{\"issueKey\":\"${{ github.event.client_payload.issueKey }}\",\"prUrl\":\"$PR_URL\"}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
