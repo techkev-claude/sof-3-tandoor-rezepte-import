@@ -50,7 +50,8 @@
       <form hx-post="/transfer"
             hx-target="#transfer-area"
             hx-swap="innerHTML"
-            hx-indicator="#transfer-spinner">
+            hx-indicator="#transfer-spinner"
+            hx-disabled-elt="find button[type='submit']">
         <div class="mb-3">
           <label class="form-label fw-bold">JSON (editierbar vor dem Import)</label>
           <textarea name="recipe_json" class="form-control font-monospace" rows="20"
